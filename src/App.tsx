@@ -26,7 +26,7 @@ import { AuthProvider } from './providers/AuthProvider';
 import { PrivateRoute } from './database/PrivateRoute';
 import { Login } from './pages/login_screen/Login';
 import ItemEdit from './pages/edit_item_screen/ItemEdit';
-import ItemList from './components/item_list/ItemList';
+import ItemList from './pages/item_list_screen/ItemList';
 
 const App: React.FC = () => (
   <IonApp>

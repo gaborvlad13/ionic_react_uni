@@ -46,9 +46,9 @@ const SAVE_ITEM_STARTED = 'SAVE_ITEM_STARTED';
 const SAVE_ITEM_SUCCEEDED = 'SAVE_ITEM_SUCCEEDED';
 const SAVE_ITEM_FAILED = 'SAVE_ITEM_FAILED';
 
-const DELETE_ITEM_STARTED = 'SAVE_ITEM_STARTED';
-const DELETE_ITEM_SUCCEEDED = 'SAVE_ITEM_SUCCEEDED';
-const DELETE_ITEM_FAILED = 'SAVE_ITEM_FAILED';
+const DELETE_ITEM_STARTED = 'DELETE_ITEM_STARTED';
+const DELETE_ITEM_SUCCEEDED = 'DELETE_ITEM_SUCCEEDED';
+const DELETE_ITEM_FAILED = 'DELETE_ITEM_FAILED';
 
 const reducer: (state: ItemsState, action: ActionProps) => ItemsState = (
   state,
@@ -79,15 +79,10 @@ const reducer: (state: ItemsState, action: ActionProps) => ItemsState = (
       return { ...state, deletingError: null, deleting: true };
     case DELETE_ITEM_SUCCEEDED:
       const itemsDelete = [...(state.items || [])];
-      const itemDelete = payload.item;
-      const indexDelete = itemsDelete.findIndex(
-        (it) => it._id === itemDelete._id
-      );
-      console.log(itemsDelete);
-
-      console.log(indexDelete);
-      itemsDelete.splice(indexDelete, 1);
-
+      const itemToDelete = payload.item;
+      itemsDelete.forEach((item, index) => {
+        if (item._id === itemToDelete._id) itemsDelete.splice(index, 1);
+      });
       return { ...state, items: itemsDelete, deleting: false };
     case DELETE_ITEM_FAILED:
       return { ...state, deletingError: payload.error, deleting: false };
@@ -177,9 +172,9 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
     try {
       log('deleteItem started');
       dispatch({ type: DELETE_ITEM_STARTED });
-      const deletedItem = await deleteItem(token, item);
+      await deleteItem(token, item);
       log('deleteItem succeeded');
-      dispatch({ type: DELETE_ITEM_SUCCEEDED, payload: { item: deletedItem } });
+      dispatch({ type: DELETE_ITEM_SUCCEEDED, payload: { item: item } });
     } catch (error) {
       log('deleteItem failed');
       dispatch({ type: DELETE_ITEM_FAILED, payload: { error } });
@@ -194,14 +189,6 @@ export const ItemProvider: React.FC<ItemProviderProps> = ({ children }) => {
       closeWebSocket = newWebSocket(token, (message) => {
         if (canceled) {
           return;
-        }
-        const { type, payload: item } = message;
-        log(`ws message, item ${type}`);
-        if (type === 'created' || type === 'updated') {
-          //dispatch({ type: SAVE_ITEM_SUCCEEDED, payload: { item } });
-        }
-        if (type === 'deleted') {
-          dispatch({ type: DELETE_ITEM_SUCCEEDED, payload: { item } });
         }
       });
     }

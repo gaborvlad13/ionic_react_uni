@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { RouteComponentProps } from 'react-router';
 import {
+  IonButton,
   IonContent,
   IonFab,
   IonFabButton,
@@ -9,11 +10,12 @@ import {
   IonList,
   IonLoading,
   IonPage,
+  IonRow,
   IonTitle,
   IonToolbar,
 } from '@ionic/react';
 import { add } from 'ionicons/icons';
-import Item from '../Item';
+import Item from '../../components/Item';
 import { getLogger } from '../../database';
 import { ItemContext } from '../../providers/ItemProvider';
 import './ItemList.css';
@@ -22,11 +24,16 @@ const log = getLogger('ItemList');
 const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
   const { items, fetching, fetchingError } = useContext(ItemContext);
   log('render');
+  console.log(items);
+
+  const handleSingOut = () => {};
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Books list</IonTitle>
+          <IonRow>
+            <IonTitle>Books list</IonTitle>
+          </IonRow>
         </IonToolbar>
       </IonHeader>
       <IonContent>

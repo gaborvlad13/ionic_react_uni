@@ -49,6 +49,10 @@ const ItemEdit: React.FC<ItemEditProps> = ({ history, match }) => {
   };
 
   const handleDelete = () => {
+    console.log('cevaaa');
+
+    console.log(item);
+
     const deletedItem = item ? { ...item, text } : { text };
     removeItem && removeItem(deletedItem).then(() => history.goBack());
   };
