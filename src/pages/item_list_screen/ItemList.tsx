@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Redirect, RouteComponentProps } from 'react-router';
 import {
   IonButton,
@@ -7,6 +7,8 @@ import {
   IonFabButton,
   IonHeader,
   IonIcon,
+  IonInfiniteScroll,
+  IonInfiniteScrollContent,
   IonList,
   IonLoading,
   IonPage,
@@ -20,11 +22,18 @@ import { getLogger } from '../../database';
 import { ItemContext } from '../../providers/ItemProvider';
 import './ItemList.css';
 import { AuthContext } from '../../providers/AuthProvider';
+import { wait } from '@testing-library/react';
+import { ItemProps } from '../../models/ItemProps';
 const log = getLogger('ItemList');
 
 const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
   const { items, fetching, fetchingError } = useContext(ItemContext);
   const { logout } = useContext(AuthContext);
+  const [pos, setPos] = useState(9);
+  const [itemsShow, setItemsShow] = useState<ItemProps[]>([]);
+  const [disableInfiniteScroll, setDisableInfiniteScroll] = useState<boolean>(
+    false
+  );
   log('render');
   console.log(items);
 
@@ -32,6 +41,28 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
     logout?.();
     return <Redirect to={{ pathname: '/login' }} />;
   };
+
+  function wait() {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000);
+    });
+  }
+
+  async function searchNext($event: CustomEvent<void>) {
+    if (items && pos < items.length) {
+      console.log(pos, items.length);
+      await wait();
+      setItemsShow([...itemsShow, ...items.slice(pos, 9 + pos)]);
+      setPos(pos + 3);
+    } else {
+      setDisableInfiniteScroll(true);
+    }
+
+    await ($event.target as HTMLIonInfiniteScrollElement).complete();
+  }
+
   return (
     <IonPage>
       <IonHeader>
@@ -56,6 +87,16 @@ const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
             ))}
           </IonList>
         )}
+        <IonInfiniteScroll
+          threshold='100px'
+          disabled={disableInfiniteScroll}
+          onIonInfinite={(e: CustomEvent<void>) => searchNext(e)}
+        >
+          <IonInfiniteScrollContent
+            loadingSpinner='bubbles'
+            loadingText='Loading more books...'
+          />
+        </IonInfiniteScroll>
         {fetchingError && (
           <div>{fetchingError.message || 'Failed to fetch items'}</div>
         )}
