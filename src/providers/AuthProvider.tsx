@@ -89,6 +89,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     async function authenticate() {
+      const tokenStorage = await Storage.get({ key: 'user' });
+      if (tokenStorage.value) {
+        setState({
+          ...state,
+          token: tokenStorage.value,
+          pendingAuthentication: false,
+          isAuthenticated: true,
+          isAuthenticating: false,
+        });
+      }
       if (!pendingAuthentication) {
         log('authenticate, !pendingAuthentication, return');
         return;
