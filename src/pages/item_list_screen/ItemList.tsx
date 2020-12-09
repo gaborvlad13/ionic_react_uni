@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { RouteComponentProps } from 'react-router';
+import { Redirect, RouteComponentProps } from 'react-router';
 import {
   IonButton,
   IonContent,
@@ -19,20 +19,26 @@ import Item from '../../components/Item';
 import { getLogger } from '../../database';
 import { ItemContext } from '../../providers/ItemProvider';
 import './ItemList.css';
+import { AuthContext } from '../../providers/AuthProvider';
 const log = getLogger('ItemList');
 
 const ItemList: React.FC<RouteComponentProps> = ({ history }) => {
   const { items, fetching, fetchingError } = useContext(ItemContext);
+  const { logout } = useContext(AuthContext);
   log('render');
   console.log(items);
 
-  const handleSingOut = () => {};
+  const handleLogout = () => {
+    logout?.();
+    return <Redirect to={{ pathname: '/login' }} />;
+  };
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar>
           <IonRow>
             <IonTitle>Books list</IonTitle>
+            <IonButton onClick={handleLogout}>Logout</IonButton>
           </IonRow>
         </IonToolbar>
       </IonHeader>
